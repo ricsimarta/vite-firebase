@@ -11,7 +11,12 @@ function App() {
 
   const getTodos = useCallback(() => getDocs(collectionRef)
     .then(snapshot => {
-      setTodos(snapshot.docs.map(docSnapshot => docSnapshot.data()))
+      setTodos(snapshot.docs.map(docSnapshot => {
+        return {
+          ...docSnapshot.data(),
+          id: docSnapshot.id
+        }
+      }))
     }), [collectionRef])
 
   useEffect(() => {
@@ -23,7 +28,13 @@ function App() {
   return (
     <div className="app">
       <AddTodo getTodos={getTodos} />
-      {todos && todos.map((todo, index) => <Todo key={index} text={todo.todo} isDone={todo.isDone} />)}
+      {todos && todos.map(todo => <Todo 
+        key={todo.id} 
+        text={todo.todo} 
+        isDone={todo.isDone} 
+        id={todo.id}
+        getTodos={getTodos}
+      />)}
     </div>
   )
 }
