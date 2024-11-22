@@ -1,11 +1,16 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useContext, useEffect, useMemo, useState } from "react";
 import AddTodo from "./components/AddTodo";
 import { getDocs, collection } from "firebase/firestore";
-import { db } from "./services/firebase.config";
+import { auth, db } from "./services/firebase.config";
 import Todo from "./components/Todo";
+import { useNavigate } from "react-router-dom";
+import { AuthContext } from "./components/Auth";
+import './App.css';
 
 function App() {
   const [todos, setTodos] = useState(null);
+  const user = useContext(AuthContext);
+  const navigate = useNavigate();
 
   const collectionRef = useMemo(() => collection(db, "todos"), []);
 
@@ -23,10 +28,13 @@ function App() {
     getTodos();
   }, [collectionRef, getTodos])
 
-  console.log(todos);
+  useEffect(() => {
+    if (user === null) navigate('/signin')
+  }, [user, navigate])
 
   return (
     <div className="app">
+      <h2>hello {user?.email}</h2>
       <AddTodo getTodos={getTodos} />
       {todos && todos.map(todo => <Todo 
         key={todo.id} 
@@ -35,6 +43,7 @@ function App() {
         id={todo.id}
         getTodos={getTodos}
       />)}
+      <button onClick={() => auth.signOut()}>sign out</button>
     </div>
   )
 }
